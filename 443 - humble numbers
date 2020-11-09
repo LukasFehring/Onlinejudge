@@ -1,0 +1,102 @@
+import java.io.IOException;
+import java.sql.SQLOutput;
+import java.util.PriorityQueue;
+import java.util.HashMap;
+
+/**
+ * General Idea:
+ * In order to get all humble numbers You put 1 in a binary heap. Then you take the
+ * minimal value of the heap, multiply it by 2,3,5,7 and put the results back into the heap.
+ * It is checked for doubles by using a HashmMap that contains <long,bool>. A bool is true
+ * if the element is currently in the hashmap and false otherwise. It might be more
+ * elegant to use enums but i did not bother :D
+ */
+class Main {
+
+    /**
+     * method to read from STDIN - https://onlinejudge.org/data/p100.java.html
+     */
+    public static void main (String args[])
+    {
+        Main myWork = new Main();
+        myWork.Begin();
+        System.exit(0);
+    }
+
+    static String ReadLn (int maxLg)
+    {
+        byte lin[] = new byte [maxLg];
+        int lg = 0, car = -1;
+        String line = "";
+        try
+        {
+            while (lg < maxLg)
+            {
+                car = System.in.read();
+                if ((car < 0) || (car == '\n')) break;
+                lin [lg++] += car;
+            }
+        }
+        catch (IOException e)
+        {
+            return (null);
+        }
+        if ((car < 0) && (lg == 0)) return (null);  // eof
+        return (new String (lin, 0, lg));
+    }
+    void Begin() {
+        HashMap<Long,Boolean> current = new HashMap<>(); //craete Hashmap that holds all values that are in the Heap currently
+        PriorityQueue<Long> heap = new PriorityQueue<>(); //creates Heap with standard comparator
+        long[] humbleNumbers = new long[5842];//create Array for all needed humbleNumbers
+        heap.add((long) 1); //adds initial value
+        int counter = 0;
+        int[] multis = {2, 3, 5, 7}; //prime factors
+        while (humbleNumbers[5841] == 0) { //not all prime numbers found
+            long tmp = heap.poll(); //current smallest
+            current.remove(tmp); ///take new element out of Hashmap
+            humbleNumbers[counter] = tmp; //save tmp in last humble numbers
+            counter++;
+            for (int i : multis) {
+                //if in bounds multiply
+                if (tmp * i <= 2000000000 && current.containsKey(tmp*i) == false) {
+                    current.put(tmp*i,true);
+                    heap.add(tmp * i);
+                }
+            }
+        }
+        String input; //empty string
+        //read input lines and evaluate
+        while((input = ReadLn(500)) != null){
+            int tmp;
+            try{
+                tmp = Integer.parseInt(input);
+                if(tmp > 0) {
+                    //check which fucking 2 letters u need cause whoever wrote that
+                    //challenge hates me
+                    String output = "The ";
+                    if (tmp % 100 == 1) {
+                        output += "" + tmp + "st";
+                    } else if (tmp % 100 == 2) {
+                        output += "" + tmp + "nd";
+                    } else if (tmp % 100 == 3) {
+                        output += "" + tmp + "rd";
+                    } else if (tmp <= 20 || tmp % 100 <= 20) {
+                        output += "" + tmp + "th";
+                    } else if (tmp % 10 == 1) {
+                        output += "" + tmp + "st";
+                    } else if (tmp % 10 == 2) {
+                        output += "" + tmp + "nd";
+                    } else if (tmp % 10 == 3) {
+                        output += "" + tmp + "rd";
+                    } else {
+                        output += "" + tmp + "th";
+                    }
+                    output += " humble number is " + humbleNumbers[tmp - 1] + ".";
+                    System.out.println(output);
+                }
+            }catch(Exception e){
+                System.out.println("");
+            }
+        }
+    }
+}
